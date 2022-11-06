@@ -1,0 +1,52 @@
+name: task
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron:  '10 23,4,11 * * *'
+
+
+jobs:
+  task:
+    name: Check in
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Set environment variables
+        env:
+            IP_SECRET: ${{ secrets.IP }}
+            USE_WEBVPN_SECRET: ${{ secrets.USE_WEBVPN }}
+            NO_ERROR_SECRET: ${{ secrets.NO_ERROR }}
+            DEBUG_SECRET: ${{ secrets.DEBUG }}
+        run: |
+            if ${{ env.IP_SECRET != '' }}
+            then
+                echo "IP=--ip ${{ env.IP_SECRET }}" >> $GITHUB_ENV
+            fi
+            if ${{ env.USE_WEBVPN_SECRET != '' }}
+            then
+                echo "USE_WEBVPN=--use-webvpn" >> $GITHUB_ENV
+            fi
+            if ${{ env.NO_ERROR_SECRET != '' }}
+            then
+                echo "NO_ERROR=--no-error" >> $GITHUB_ENV
+            fi
+            if ${{ env.DEBUG_SECRET != '' }}
+            then
+                echo "DEBUG=--debug" >> $GITHUB_ENV
+            fi
+            
+      - name: Run
+        run: |
+          python ./main.py "${{ secrets.USER }}" "${{ secrets.PASSWORD }}" ${{ env.IP }} ${{ env.USE_WEBVPN }} ${{ env.NO_ERROR }} ${{ env.DEBUG }}
