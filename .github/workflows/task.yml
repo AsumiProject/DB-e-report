@@ -32,7 +32,7 @@ jobs:
         run: |
             if ${{ env.IP_SECRET != '' }}
             then
-                echo "IP=--ip ${{ env.IP_SECRET }}" >> $GITHUB_ENV
+                echo "IP=--ip \"${{ env.IP_SECRET }}\"" >> $GITHUB_ENV
             fi
             if ${{ env.USE_WEBVPN_SECRET != '' }}
             then
@@ -46,7 +46,11 @@ jobs:
             then
                 echo "DEBUG=--debug" >> $GITHUB_ENV
             fi
-            
+
       - name: Run
-        run: |
-          python ./main.py "${{ secrets.USER }}" "${{ secrets.PASSWORD }}" ${{ env.IP }} ${{ env.USE_WEBVPN }} ${{ env.NO_ERROR }} ${{ env.DEBUG }}
+        uses: nick-fields/retry@v2.8.2
+        with:
+          timeout_seconds: 60
+          max_attempts: 3
+          retry_on: error
+          command: python ./main.py "${{ secrets.USER }}" "${{ secrets.PASSWORD }}" ${{ env.IP }} ${{ env.USE_WEBVPN }} ${{ env.NO_ERROR }} ${{ env.DEBUG }}
