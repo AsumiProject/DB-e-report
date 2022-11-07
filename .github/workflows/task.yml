@@ -50,7 +50,6 @@ jobs:
       - name: Run
         uses: nick-fields/retry@v2.8.2
         with:
-          timeout_seconds: 60
+          timeout_seconds: 120
           max_attempts: 3
-          retry_on: error
           command: python ./main.py "${{ secrets.USER }}" "${{ secrets.PASSWORD }}" ${{ env.IP }} ${{ env.USE_WEBVPN }} ${{ env.NO_ERROR }} ${{ env.DEBUG }}
